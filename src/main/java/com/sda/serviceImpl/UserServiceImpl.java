@@ -1,4 +1,4 @@
-package com.sda.ServiceImpl;
+package com.sda.serviceImpl;
 
 import com.sda.dao.UserDao;
 import com.sda.entities.User;

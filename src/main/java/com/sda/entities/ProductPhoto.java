@@ -12,8 +12,8 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 public class ProductPhoto {
     @Id
-    @Column(columnDefinition = "char(36)")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     @ManyToOne
     private Product productId;
     private String productPhoto;

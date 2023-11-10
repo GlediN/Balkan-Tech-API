@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
-@NamedQuery(name = "User.findByEmailId", query = "select u from User u where u.email=:email")
+
 @Entity
 @Table(name = "user")
 @Data

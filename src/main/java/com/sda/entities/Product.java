@@ -7,6 +7,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.List;
 
+
 @Entity
 @Table(name = "product")
 @Data
@@ -14,12 +15,12 @@ import java.util.List;
 @DynamicUpdate
 public class Product {
     @Id
-    @Column(columnDefinition = "char(36)")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column(unique = true)
     private String name;
     @Column(columnDefinition = "text")
     private String description;
-    private String thumbnail;
     private Integer quantity;
     @ManyToOne
     @JoinColumn(name = "categoryId")

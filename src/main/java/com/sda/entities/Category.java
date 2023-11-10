@@ -5,7 +5,8 @@ import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-@NamedQuery(name = "Category.getAllCategory", query = "select c from Category c where c.id in (select p.category from Product p where p.quantity>0)")
+
+
 @Entity
 @Table(name = "category")
 @Data
@@ -13,8 +14,8 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 public class Category {
     @Id
-    @Column(columnDefinition = "char(36)")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     @Column(unique = true)
     private String name;
     private String photo;

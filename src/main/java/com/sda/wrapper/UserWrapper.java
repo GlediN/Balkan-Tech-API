@@ -1,4 +1,4 @@
-package com.sda.UserWrapper;
+package com.sda.wrapper;
 
 public class UserWrapper {
 

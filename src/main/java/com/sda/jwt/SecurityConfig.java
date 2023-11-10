@@ -28,7 +28,7 @@ final JwtFilter jwtFilter;
 
         http.cors(withDefaults()).csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authz) ->
-                        authz.requestMatchers("/user/login", "/user/signup", "/user/forgotPassword")
+                        authz.requestMatchers("/login", "/signup")
                                 .permitAll().anyRequest().authenticated())
                 .exceptionHandling((ex) -> ex.accessDeniedHandler(null))
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

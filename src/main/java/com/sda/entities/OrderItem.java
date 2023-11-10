@@ -14,8 +14,8 @@ import java.util.Date;
 @DynamicUpdate
 public class OrderItem {
     @Id
-    @Column(columnDefinition = "char(36)")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String quantity;
     private String price;
     @ManyToOne
