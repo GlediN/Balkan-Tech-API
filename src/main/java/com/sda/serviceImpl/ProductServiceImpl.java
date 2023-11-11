@@ -6,10 +6,8 @@ import com.sda.entities.Category;
 import com.sda.entities.Product;
 import com.sda.entities.ProductPhoto;
 import com.sda.jwt.JwtFilter;
-import com.sda.service.CategoryService;
 import com.sda.service.ProductService;
 import com.sda.utils.HelpfulUtils;
-import com.sda.wrapper.ProductWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +35,7 @@ public class ProductServiceImpl implements ProductService {
                 if (validateProductMap(requestMap, false)) {
                     String productName = requestMap.get("name");
                     if (productDao.existsByName(productName)) {
-                        return HelpfulUtils.getResponseEntity("Product with namr '" + productName + "' already exists", HttpStatus.BAD_REQUEST);
+                        return HelpfulUtils.getResponseEntity("Product with already exists", HttpStatus.OK);
                     }
                     Integer categoryId = Integer.parseInt(requestMap.get("categoryId"));
                     if (!productDao.existsCategoryById(categoryId)) {
@@ -107,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public ResponseEntity<List<ProductWrapper>> getAllProduct() {
+    public ResponseEntity<List<Product>> getAllProduct() {
         try {
             return new ResponseEntity<>(productDao.getAllProduct(), HttpStatus.OK);
 
@@ -213,7 +211,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public ResponseEntity<ProductWrapper> getProductById(Integer id) {
+    public ResponseEntity<Product> getProductById(Integer id) {
         try {
             return new ResponseEntity<>(productDao.getProductById(id), HttpStatus.OK);
 
@@ -222,6 +220,6 @@ public class ProductServiceImpl implements ProductService {
         }
 
 
-        return new ResponseEntity<>(new ProductWrapper(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new Product(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

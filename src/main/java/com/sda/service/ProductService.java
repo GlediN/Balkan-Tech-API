@@ -1,7 +1,6 @@
 package com.sda.service;
 
 import com.sda.entities.Product;
-import com.sda.wrapper.ProductWrapper;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -12,7 +11,7 @@ public interface ProductService {
     ResponseEntity<String> addNewProduct(Map<String, String> requestMap);
 
 
-    ResponseEntity<List<ProductWrapper>> getAllProduct();
+    ResponseEntity<List<Product>> getAllProduct();
 
     ResponseEntity<String> updateProduct(Map<String, String> requestMap);
 
@@ -22,7 +21,7 @@ public interface ProductService {
 
     ResponseEntity<List<Product>> getByCategory(Integer id);
 
-    ResponseEntity<ProductWrapper> getProductById(Integer id);
+    ResponseEntity<Product> getProductById(Integer id);
 
 
 

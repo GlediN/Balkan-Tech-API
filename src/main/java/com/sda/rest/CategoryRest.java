@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin
 @RequestMapping(path = "/category")
 public interface CategoryRest {
     @PostMapping(path = "/add")
     ResponseEntity<String> addNewCategory(@RequestBody Map<String, String> requestMap);
 
     @GetMapping(path = "/get")
-    ResponseEntity<List<Category>> getAllCategory(@RequestParam(required = false) //false pasi mund te mos kete fare dhe keshtu thirrja nuk do te prese patjeter nje vlere
+    ResponseEntity<List<Category>> getAllCategory(@RequestParam(required = false)
                                                   String filterValue);
 
     @PostMapping(path = "/update")

@@ -1,7 +1,6 @@
 package com.sda.dao;
 
 import com.sda.entities.Product;
-import com.sda.wrapper.ProductWrapper;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,7 +11,7 @@ import java.util.List;
 
 public interface ProductDao extends JpaRepository<Product, Integer> {
     @Query("select p from Product p")
-    List<ProductWrapper> getAllProduct();
+    List<Product> getAllProduct();
 
     @Modifying
     @Transactional
@@ -20,7 +19,7 @@ public interface ProductDao extends JpaRepository<Product, Integer> {
     void updateProductQuantity(@Param("quantity") Integer quantity, @Param("id") Integer id);
     @Query("select p from Product p where p.category.id = :categoryId")
     List<Product> getProductByCategory(@Param("categoryId") Integer categoryId);
-    ProductWrapper getProductById(@Param("id") Integer id);
+    Product getProductById(@Param("id") Integer id);
     boolean existsByName(String name);
     @Query("select count(c) > 0 from Category c where c.id = :categoryId")
     boolean existsCategoryById(@Param("categoryId") Integer categoryId);

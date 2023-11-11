@@ -4,7 +4,6 @@ import com.sda.entities.Product;
 import com.sda.rest.ProductRest;
 import com.sda.service.ProductService;
 import com.sda.utils.HelpfulUtils;
-import com.sda.wrapper.ProductWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +29,7 @@ public class ProductRestImpl implements ProductRest {
     }
 
     @Override
-    public ResponseEntity<List<ProductWrapper>> getAllProduct() {
+    public ResponseEntity<List<Product>> getAllProduct() {
         try{
             return productService.getAllProduct();
         }catch (Exception e){
@@ -103,7 +102,7 @@ public class ProductRestImpl implements ProductRest {
     }
 
     @Override
-    public ResponseEntity<ProductWrapper> getProductById(Integer id) {
+    public ResponseEntity<Product> getProductById(Integer id) {
         try{
             return productService.getProductById(id);
 
@@ -112,6 +111,6 @@ public class ProductRestImpl implements ProductRest {
         }
 
 
-        return new ResponseEntity<>(new ProductWrapper(),HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new Product(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

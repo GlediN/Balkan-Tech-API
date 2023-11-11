@@ -26,6 +26,10 @@ public class CategoryServiceImpl implements CategoryService {
         try {
             if (jwtFilter.isAdmin()) {
                 if (validateCategoryMap(requestMap, false)) {
+                    String categoryName = requestMap.get("name");
+                    if(categoryDAO.existsByName(categoryName)){
+                        return HelpfulUtils.getResponseEntity("Category already exists",HttpStatus.OK);
+                    }
                     categoryDAO.save(getCategpryFromMap(requestMap, false));
                     return HelpfulUtils.getResponseEntity("Category added successfully", HttpStatus.OK);
 
