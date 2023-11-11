@@ -35,7 +35,7 @@ public class ProductServiceImpl implements ProductService {
                 if (validateProductMap(requestMap, false)) {
                     String productName = requestMap.get("name");
                     if (productDao.existsByName(productName)) {
-                        return HelpfulUtils.getResponseEntity("Product with already exists", HttpStatus.OK);
+                        return HelpfulUtils.getResponseEntity("Product already exists", HttpStatus.OK);
                     }
                     Integer categoryId = Integer.parseInt(requestMap.get("categoryId"));
                     if (!productDao.existsCategoryById(categoryId)) {

@@ -70,14 +70,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ResponseEntity<List<Category>> findAll() {
         try {
-        {
                 return new ResponseEntity<>(categoryDAO.findAll(), HttpStatus.OK);
-            }
+
         } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 
     @Override
     public ResponseEntity<String> updateCategory(Map<String, String> requestMap) {
