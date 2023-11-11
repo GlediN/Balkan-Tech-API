@@ -30,9 +30,9 @@ public class CategoryRestImpl implements CategoryRest {
     }
 
     @Override
-    public ResponseEntity<List<Category>> getAllCategory(String filterValue) {
+    public ResponseEntity<List<Category>> findAll() {
         try{
-            return categoryService.getAllCategory(filterValue);
+            return categoryService.findAll();
         }catch (Exception e){
             e.printStackTrace();
         }
