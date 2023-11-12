@@ -6,6 +6,7 @@ import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -22,7 +23,7 @@ public class Orders {
     private String contactNumber;
     private String address;
     private double totalPrice;
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @ManyToOne
     private User user;
 }

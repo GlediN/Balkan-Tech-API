@@ -2,6 +2,8 @@ package com.sda.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -12,6 +14,8 @@ import java.util.Date;
 @Data
 @DynamicInsert
 @DynamicUpdate
+@Getter
+@Setter
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +26,5 @@ public class OrderItem {
     private Product productId;
     @ManyToOne
     private Orders orderId;
+
 }
