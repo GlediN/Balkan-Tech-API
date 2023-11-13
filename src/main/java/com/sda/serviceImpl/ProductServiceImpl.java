@@ -55,7 +55,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-
     private boolean validateProductMap(Map<String, String> requestMap, boolean validateId) {
         if (requestMap.containsKey("name")) {
             if (requestMap.containsKey("id") && validateId) {
@@ -99,9 +98,6 @@ public class ProductServiceImpl implements ProductService {
 
         return product;
     }
-
-
-
 
 
     @Override
@@ -196,7 +192,7 @@ public class ProductServiceImpl implements ProductService {
                 List<Product> products = productDao.getProductByCategory(id);
                 return new ResponseEntity<>(products, HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(new ArrayList<>(),HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -204,10 +200,6 @@ public class ProductServiceImpl implements ProductService {
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-
-
-
 
 
     @Override
@@ -221,5 +213,16 @@ public class ProductServiceImpl implements ProductService {
 
 
         return new ResponseEntity<>(new Product(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<Product>> getMostSoldProducts() {
+        try {
+            return new ResponseEntity<>(productDao.getMostSoldProducts(), HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
