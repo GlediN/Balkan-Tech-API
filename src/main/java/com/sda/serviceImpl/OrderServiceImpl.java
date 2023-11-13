@@ -1,6 +1,7 @@
 package com.sda.serviceImpl;
 
 import com.sda.dao.OrderDao;
+import com.sda.dao.OrderItemsDAO;
 import com.sda.dao.ProductDao;
 import com.sda.dao.UserDao;
 import com.sda.entities.OrderItem;
@@ -26,6 +27,7 @@ public class OrderServiceImpl implements OrderService {
     final UserDao userDao;
     final OrderDao orderDao;
     final ProductDao productDao;
+    final OrderItemsDAO orderItemsDAO;
 
     @Override
     public ResponseEntity<String> getOrder(Map<String, String> requestMap) {
@@ -46,7 +48,16 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    public ResponseEntity saveOrder(Map<String, String> requestMap){
+        try {
+            orderDao.save(getOrdersFromMap(requestMap));
 
+            return HelpfulUtils.getResponseEntity("Order Saved",HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     private Orders getOrdersFromMap(Map<String, String> requestMap) {
         Orders orders = new Orders();
         OrderItem orderItem = new OrderItem();
@@ -62,22 +73,11 @@ public class OrderServiceImpl implements OrderService {
         orderItem.setOrderId(orders);
         orderItem.setQuantity(requestMap.get("quantity"));
         orderItem.setProductId(product);
-        saveOrder(requestMap);
+        orderItemsDAO.save(orderItem);
         return orders;
 
 
     }
-    public ResponseEntity saveOrder(Map<String, String> requestMap){
-        try {
-                orderDao.save(getOrdersFromMap(requestMap));
-                return HelpfulUtils.getResponseEntity("Order Saved",HttpStatus.OK);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-//    private OrderItem getOrderItemsFromMap(Map<String,String>requestMap){
-//        OrderItem orderItem=new OrderItem();
-//        orderItem.getOrderId();
-//    }
+
+
 }
