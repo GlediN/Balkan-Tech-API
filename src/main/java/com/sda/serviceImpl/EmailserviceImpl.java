@@ -1,28 +1,26 @@
 package com.sda.serviceImpl;
 
 
-import com.sda.service.Emailservice;
+import com.sda.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 
 @Service
-@RequiredArgsConstructor
-public class EmailserviceImpl implements Emailservice{
+public class EmailserviceImpl implements EmailService {
+    JavaMailSender javaMailSender;
 
+    public void EmailServiceImpl(JavaMailSender javaMailSender) {
+        this.javaMailSender = javaMailSender;
+    }
 
-    private final JavaMailSender javaMailSender;
-
-
-    public void sendEmailservice(String to, String subject, String text, String attachmentPath) {
+    public void sendEmail(String to, String subject, String text, String attachmentPath) throws EmailException {
         try {
+
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -30,13 +28,17 @@ public class EmailserviceImpl implements Emailservice{
             helper.setSubject(subject);
             helper.setText(text);
 
-            File attachment = new File(attachmentPath);
-            helper.addAttachment(attachment.getName(), attachment);
+            if (attachmentPath != null) {
+                FileSystemResource file = new FileSystemResource(attachmentPath);
+                helper.addAttachment(file.getFilename(), file);
+
+
+            }
 
             javaMailSender.send(message);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-
+        } catch (Exception e) {
+            throw new EmailException("Fail to send email", e);
         }
     }
+
 }
