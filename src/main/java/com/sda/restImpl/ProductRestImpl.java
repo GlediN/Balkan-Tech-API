@@ -45,6 +45,11 @@ public class ProductRestImpl implements ProductRest {
     }
 
     @Override
+    public ResponseEntity<List<Product>> getMostSoldProducts() {
+        return productService.getMostSoldProducts();
+    }
+
+    @Override
     public ResponseEntity<String> updateProduct(Map<String, String> requestMap) {
         try{
             return productService.updateProduct(requestMap);
