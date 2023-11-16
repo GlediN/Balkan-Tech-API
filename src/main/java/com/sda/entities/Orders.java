@@ -26,4 +26,6 @@ public class Orders {
     private LocalDateTime orderDate;
     @ManyToOne
     private User user;
+//    @Column(name = "product_id")
+//    private Long productId;
 }

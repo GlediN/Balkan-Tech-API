@@ -28,5 +28,7 @@ public interface ProductDao extends JpaRepository<Product, Integer> {
     boolean existsByName(String name);
     @Query("select count(c) > 0 from Category c where c.id = :categoryId")
     boolean existsCategoryById(@Param("categoryId") Integer categoryId);
+    @Query("UPDATE Product p SET p.soldQty = p.quantity + :quantityToAdd WHERE p.id = :productId")
+    void incrementQuantitySold(@Param("productId") int productId, @Param("quantityToAdd") int quantityToAdd);
 
 }
