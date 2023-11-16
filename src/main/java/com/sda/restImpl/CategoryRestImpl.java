@@ -59,7 +59,30 @@ public class CategoryRestImpl implements CategoryRest {
             return categoryService.deleteCategory(categoryId);
         } catch (Exception e){
             e.printStackTrace();
-                   }
+        }
         return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Override
+    public ResponseEntity<List<Category>> getMainCategories() {
+        try{
+            return categoryService.getMainCategories();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<Category>> getSubCategories() {
+        try{
+            return categoryService.getSubCategories();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
+
 }
