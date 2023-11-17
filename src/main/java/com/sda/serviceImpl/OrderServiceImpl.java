@@ -57,6 +57,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
             }
+            updateProductQuantities(orderWrite);
 
             return ResponseEntity.ok("Order saved successfully");
         } catch (Exception e) {
@@ -65,43 +66,27 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-//    public ResponseEntity<String> saveOrder(OrderWrite orderWrite) {
-//        try {
-////            orderWrite.setTotalPrice("totalPrice"); // This line seems unnecessary, please review
-//
-//            // Add your business logic here for saving the order
-//            Order order = createOrderFromDTO(orderWrite);
-//            orderDao.save(order);
-//            OrderItemWrite orderItemWrite=new OrderItemWrite();
-//            Product product= new Product();
-//            if (orderWrite.getOrderItems() != null) {
-//                for (OrderItemWrite itemWrite : orderWrite.getOrderItems()) {
-//                    OrderItem orderItem = new OrderItem();
-////                    Product product1= productDao.getProductById(orderItem.getProductId());
-//
-//                    orderItem.setProductId(product);
-//                    orderItem.setOrderId(order);
-//                    orderItem.setQuantity(itemWrite.getQuantity());
-//                    orderItemWrite.setProductId(orderItemWrite.getProductId());
-//                    // Fetch the product from the database using the productId
-////                    Product product = productDao.findById((int) Long.parseLong(itemWrite.getProductId())).orElse(null);
-//                    if (product != null) {
-//                        orderItem.setProductId(product);
-//                        orderItemsDAO.save(orderItem);
-//                    } else {
-//                        HelpfulUtils.getResponseEntity("Producy ID not found", HttpStatus.BAD_REQUEST);
-//                        // Handle the case where the product with the given ID is not found
-//                        // You might want to throw an exception or handle it appropriately
-//                    }
-//                }
-//            }
-//            return ResponseEntity.ok("Order saved successfully");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).body("Error saving order");
-//        }
-//    }
+    private void updateProductQuantities(OrderWrite orderWrite) {
+        if (orderWrite.getOrderItems() != null) {
+            for (OrderItemWrite itemWrite : orderWrite.getOrderItems()) {
+                // Fetch the product from the database using the productId
+                Product product = productDao.findById((int) Long.parseLong(itemWrite.getProductId())).orElse(null);
 
+                if (product != null) {
+                    // Parse the quantity from String to int
+                    int orderQuantity = Integer.parseInt(itemWrite.getQuantity());
+                    int productQuantity = Integer.parseInt(String.valueOf(product.getQuantity()));
+
+                    // Update the product quantity
+                    int remainingQuantity = productQuantity - orderQuantity;
+                    product.setQuantity(Integer.valueOf(String.valueOf(remainingQuantity)));
+
+                    // Save the updated product
+                    productDao.save(product);
+                }
+            }
+        }
+    }
     private Order createOrderFromDTO(OrderWrite orderWrite) {
         Order order = new Order();
 
