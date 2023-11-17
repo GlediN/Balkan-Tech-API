@@ -118,4 +118,14 @@ public class ProductRestImpl implements ProductRest {
 
         return new ResponseEntity<>(new Product(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Override
+    public ResponseEntity<List<Product>> searchProductByNameAndCategory(String search) {
+        try{
+            return productService.searchByProductNameAndCategory(search);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
