@@ -7,8 +7,6 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import java.util.Date;
-
 @Entity
 @Table(name = "order_item")
 @Data
@@ -25,6 +23,6 @@ public class OrderItem {
     @ManyToOne
     private Product productId;
     @ManyToOne
-    private Orders orderId;
+    private Order orderId;
 
 }
