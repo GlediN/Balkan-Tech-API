@@ -1,9 +1,6 @@
 package com.sda.serviceImpl;
 
-import com.sda.dao.OrderDao;
-import com.sda.dao.OrderItemsDAO;
-import com.sda.dao.ProductDao;
-import com.sda.dao.UserDao;
+import com.sda.repositories.*;
 import com.sda.dto.OrderItemWrite;
 import com.sda.dto.OrderWrite;
 import com.sda.entities.Order;
@@ -36,40 +33,74 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<String> saveOrder(OrderWrite orderWrite) {
         try {
-//            orderWrite.setTotalPrice("totalPrice"); // This line seems unnecessary, please review
-
             // Add your business logic here for saving the order
             Order order = createOrderFromDTO(orderWrite);
             orderDao.save(order);
-            OrderItemWrite orderItemWrite=new OrderItemWrite();
-            Product product= productDao.getProductById(Integer.valueOf(orderItemWrite.getProductId()));
+
             if (orderWrite.getOrderItems() != null) {
                 for (OrderItemWrite itemWrite : orderWrite.getOrderItems()) {
                     OrderItem orderItem = new OrderItem();
-//                    Product product1= productDao.getProductById(orderItem.getProductId());
-
-                    orderItem.setProductId(product);
-                    orderItem.setOrderId(order);
-                    orderItem.setQuantity(itemWrite.getQuantity());
 
                     // Fetch the product from the database using the productId
-//                    Product product = productDao.findById((int) Long.parseLong(itemWrite.getProductId())).orElse(null);
+                    Product product = productDao.findById((int) Long.parseLong(itemWrite.getProductId())).orElse(null);
+
                     if (product != null) {
-                        orderItem.setProduct(product);
+                        orderItem.setProductId(product);
+                        orderItem.setOrderId(order);
+                        orderItem.setQuantity(itemWrite.getQuantity());
+                        // You may want to set the price based on the product or other business logic
+                        // orderItem.setPrice(itemWrite.getPrice());
+
                         orderItemsDAO.save(orderItem);
                     } else {
-                        HelpfulUtils.getResponseEntity("Producy ID not found", HttpStatus.BAD_REQUEST);
-                        // Handle the case where the product with the given ID is not found
-                        // You might want to throw an exception or handle it appropriately
+                        return HelpfulUtils.getResponseEntity("Product ID not found", HttpStatus.BAD_REQUEST);
                     }
                 }
             }
+
             return ResponseEntity.ok("Order saved successfully");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error saving order");
         }
     }
+
+//    public ResponseEntity<String> saveOrder(OrderWrite orderWrite) {
+//        try {
+////            orderWrite.setTotalPrice("totalPrice"); // This line seems unnecessary, please review
+//
+//            // Add your business logic here for saving the order
+//            Order order = createOrderFromDTO(orderWrite);
+//            orderDao.save(order);
+//            OrderItemWrite orderItemWrite=new OrderItemWrite();
+//            Product product= new Product();
+//            if (orderWrite.getOrderItems() != null) {
+//                for (OrderItemWrite itemWrite : orderWrite.getOrderItems()) {
+//                    OrderItem orderItem = new OrderItem();
+////                    Product product1= productDao.getProductById(orderItem.getProductId());
+//
+//                    orderItem.setProductId(product);
+//                    orderItem.setOrderId(order);
+//                    orderItem.setQuantity(itemWrite.getQuantity());
+//                    orderItemWrite.setProductId(orderItemWrite.getProductId());
+//                    // Fetch the product from the database using the productId
+////                    Product product = productDao.findById((int) Long.parseLong(itemWrite.getProductId())).orElse(null);
+//                    if (product != null) {
+//                        orderItem.setProductId(product);
+//                        orderItemsDAO.save(orderItem);
+//                    } else {
+//                        HelpfulUtils.getResponseEntity("Producy ID not found", HttpStatus.BAD_REQUEST);
+//                        // Handle the case where the product with the given ID is not found
+//                        // You might want to throw an exception or handle it appropriately
+//                    }
+//                }
+//            }
+//            return ResponseEntity.ok("Order saved successfully");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(500).body("Error saving order");
+//        }
+//    }
 
     private Order createOrderFromDTO(OrderWrite orderWrite) {
         Order order = new Order();
@@ -83,27 +114,6 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderDate(LocalDateTime.now());
         order.setUser(userDao.findByEmailId(orderWrite.getEmail()));
 
-        // Set other properties from the DTO as needed
-        // ...
-
-        // Save order items
-//        if (orderWrite.getOrderItems() != null) {
-//            for (OrderItemWrite itemWrite : orderWrite.getOrderItems()) {
-//                OrderItem orderItem = new OrderItem();
-//                orderItem.setOrderId(order);
-//                orderItem.setQuantity(itemWrite.getQuantity());
-//
-//                // Fetch the product from the database using the productId
-//                Product product = productDao.findById((int) Long.parseLong(itemWrite.getProductId())).orElse(null);
-//                if (product != null) {
-//                    orderItem.setProduct(product);
-//                    orderItemsDAO.save(orderItem);
-//                } else {
-//                    // Handle the case where the product with the given ID is not found
-//                    // You might want to throw an exception or handle it appropriately
-//                }
-//            }
-//        }
 
         return order;
     }

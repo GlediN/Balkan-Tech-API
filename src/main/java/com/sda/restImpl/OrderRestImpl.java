@@ -1,6 +1,6 @@
 package com.sda.restImpl;
 
-import com.sda.dao.OrderDao;
+import com.sda.repositories.*;
 import com.sda.dto.OrderWrite;
 import com.sda.rest.OrderRest;
 import com.sda.service.OrderService;

@@ -1,7 +1,6 @@
 package com.sda.serviceImpl;
 
-import com.sda.dao.CategoryDao;
-import com.sda.dao.ProductDao;
+import com.sda.repositories.*;
 import com.sda.entities.Category;
 import com.sda.entities.Product;
 import com.sda.entities.ProductPhoto;

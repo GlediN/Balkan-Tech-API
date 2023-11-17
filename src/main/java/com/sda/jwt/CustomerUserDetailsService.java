@@ -1,6 +1,6 @@
 package com.sda.jwt;
 
-import com.sda.dao.UserDao;
+import com.sda.repositories.UserDao;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

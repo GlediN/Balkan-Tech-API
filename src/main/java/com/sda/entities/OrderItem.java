@@ -24,7 +24,9 @@ public class OrderItem {
     private Product productId;
     @ManyToOne
     private Order orderId;
-
-    public void setProduct(Product product) {
-    }
 }
+//    public void setProduct(Product product) {
+//        int productID = product.getId();
+//        product.setId(productID);
+//    }
+
