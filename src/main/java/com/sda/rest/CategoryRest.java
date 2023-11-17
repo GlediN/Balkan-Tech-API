@@ -16,12 +16,19 @@ public interface CategoryRest {
     @GetMapping(path = "/get")
     ResponseEntity<List<Category>> findAll();
 
-    @PostMapping(path = "/update")
+    @PutMapping(path = "/update")
     ResponseEntity<String> updateCategory(@RequestBody
                                           Map<String, String> requestMap);
 
     @PostMapping(path = "/delete/{categoryId}")
     ResponseEntity<String> deleteCategory(@PathVariable Integer categoryId);
+
+
+    @GetMapping("/main-category")
+    ResponseEntity<List<Category>> getMainCategories();
+
+    @GetMapping("/sub-category")
+    ResponseEntity<List<Category>> getSubCategories();
 
 
 }

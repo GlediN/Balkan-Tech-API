@@ -24,4 +24,6 @@ public interface ProductService {
     ResponseEntity<Product> getProductById(Integer id);
 
     ResponseEntity<List<Product>> getMostSoldProducts();
+
+    ResponseEntity<List<Product>> searchByProductNameAndCategory(String search);
 }

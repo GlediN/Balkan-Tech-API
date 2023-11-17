@@ -75,9 +75,7 @@ public class ProductServiceImpl implements ProductService {
         if (isAdd) {
             product.setId(Integer.parseInt(requestMap.get("id")));
         }
-        if (!isAdd && requestMap.containsKey("quantity")) {
-            product.setQuantity(Integer.parseInt(requestMap.get("quantity")));
-        }
+        product.setQuantity(Integer.parseInt(requestMap.get("quantity")));
         product.setCategory(category);
         product.setName(requestMap.get("name"));
         product.setDescription(requestMap.get("description"));
@@ -119,7 +117,6 @@ public class ProductServiceImpl implements ProductService {
                     Optional<Product> optional = productDao.findById(Integer.parseInt(requestMap.get("id")));
                     if (!optional.isEmpty()) {
                         Product product = getProductFromMap(requestMap, true);
-                        product.setQuantity(optional.get().getQuantity());
                         productDao.save(product);
                         return HelpfulUtils.getResponseEntity("Product updated successfully", HttpStatus.OK);
                     } else {
@@ -224,5 +221,16 @@ public class ProductServiceImpl implements ProductService {
             e.printStackTrace();
         }
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<Product>> searchByProductNameAndCategory(String search) {
+        try{
+            return new ResponseEntity<>(productDao.searchProductByNameOrCategory(search),HttpStatus.OK);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
 }

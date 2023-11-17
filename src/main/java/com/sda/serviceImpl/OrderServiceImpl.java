@@ -50,13 +50,29 @@ public class OrderServiceImpl implements OrderService {
 
     public ResponseEntity saveOrder(Map<String, String> requestMap){
         try {
-            orderDao.save(getOrdersFromMap(requestMap));
+            Orders savedOrder = orderDao.save(getOrdersFromMap(requestMap));
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrderId(savedOrder);
+            orderItem.setQuantity(null);
+            orderItemsDAO.save(orderItem);
 
             return HelpfulUtils.getResponseEntity("Order Saved",HttpStatus.OK);
         }catch (Exception e){
             e.printStackTrace();
         }
         return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private Product getProductFromMap(Map<String, String> requestMap) {
+        if (requestMap.containsKey("productId")) {
+            try {
+                int productId = Integer.parseInt(requestMap.get("productId"));
+                return productDao.findById(productId).orElse(null);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
     private Orders getOrdersFromMap(Map<String, String> requestMap) {
         Orders orders = new Orders();
@@ -70,12 +86,7 @@ public class OrderServiceImpl implements OrderService {
         orders.setTotalPrice(Double.parseDouble(requestMap.get("totalPrice")));
         orders.setOrderDate(LocalDateTime.now());
         orders.setUser(userDao.findByEmailId(requestMap.get("email")));
-        orderItem.setOrderId(orders);
-        orderItem.setQuantity(requestMap.get("quantity"));
-        orderItem.setProductId(product);
-        orderItemsDAO.save(orderItem);
         return orders;
-
 
     }
 

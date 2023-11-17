@@ -35,6 +35,7 @@ public interface ProductRest {
     @GetMapping(path="/getById/{id}")
     ResponseEntity<Product> getProductById(@PathVariable Integer id);
 
-
+@PostMapping(path="/search/{search}")
+    ResponseEntity<List<Product>> searchProductByNameAndCategory(@PathVariable String search);
 
 }

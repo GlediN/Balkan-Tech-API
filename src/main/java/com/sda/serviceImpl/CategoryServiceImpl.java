@@ -21,14 +21,15 @@ public class CategoryServiceImpl implements CategoryService {
     final CategoryDao categoryDAO;
 
     final JwtFilter jwtFilter;
+
     @Override
     public ResponseEntity<String> addNewCategory(Map<String, String> requestMap) {
         try {
             if (jwtFilter.isAdmin()) {
                 if (validateCategoryMap(requestMap, false)) {
                     String categoryName = requestMap.get("name");
-                    if(categoryDAO.existsByName(categoryName)){
-                        return HelpfulUtils.getResponseEntity("Category already exists",HttpStatus.OK);
+                    if (categoryDAO.existsByName(categoryName)) {
+                        return HelpfulUtils.getResponseEntity("Category already exists", HttpStatus.OK);
                     }
                     categoryDAO.save(getCategpryFromMap(requestMap, false));
                     return HelpfulUtils.getResponseEntity("Category added successfully", HttpStatus.OK);
@@ -46,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private boolean validateCategoryMap(Map<String, String> requestMap, boolean validateId) {
-        if (requestMap.containsKey("name")) {
+        if (requestMap.containsKey("name") && requestMap.containsKey("photo") && requestMap.containsKey("parentId")) {
             if (requestMap.containsKey("id") && validateId) {
                 return true;
             } else if (!validateId) {
@@ -70,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ResponseEntity<List<Category>> findAll() {
         try {
-                return new ResponseEntity<>(categoryDAO.findAll(), HttpStatus.OK);
+            return new ResponseEntity<>(categoryDAO.findAll(), HttpStatus.OK);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,4 +129,24 @@ public class CategoryServiceImpl implements CategoryService {
         return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    public ResponseEntity<List<Category>> getMainCategories() {
+        try {
+            return new ResponseEntity<>(categoryDAO.getMainCategory(), HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<Category>> getSubCategories() {
+        try {
+            return new ResponseEntity<>(categoryDAO.getSubCategory(), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
