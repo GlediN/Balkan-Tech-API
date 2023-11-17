@@ -1,6 +1,7 @@
 package com.sda.restImpl;
 
 import com.sda.rest.UserRest;
+import com.sda.service.EmailService;
 import com.sda.service.UserService;
 import com.sda.utils.HelpfulUtils;
 import lombok.Getter;
@@ -19,9 +20,13 @@ import java.util.Map;
 public class UserRestImpl implements UserRest {
 
 final UserService userService;
+final EmailService emailService;
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
         try {
+            emailService.sendEmail(requestMap.get("email"), "BalkanTech - Email created",
+                    "Your account at balkantech.info is created sucessfully",
+                    null);
             return userService.signUp(requestMap);
         } catch (Exception e) {
             e.printStackTrace();
