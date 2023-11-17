@@ -20,7 +20,7 @@ public class Order {
     private String email;
     private String contactNumber;
     private String address;
-    private double totalPrice;
+    private Double totalPrice;
     private LocalDateTime orderDate;
     @ManyToOne
     private User user;

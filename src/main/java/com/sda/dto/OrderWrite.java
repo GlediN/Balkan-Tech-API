@@ -8,12 +8,11 @@ import java.util.List;
 @Getter
 @Setter
 public class OrderWrite {
-    protected String name;
-    protected String surname;
-    protected String contactNumber;
-    protected String address;
-    protected String totalPrice;
-    protected String email;
-    protected String quantity;
-    protected List<OrderItemWrite> orderItems;
+    private String name;
+    private String contactNumber;
+    private String address;
+    private Double totalPrice;
+    private String email;
+    private String quantity; // This seems to be redundant and can be removed
+    private List<OrderItemWrite> orderItems;
 }

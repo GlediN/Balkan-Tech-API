@@ -25,4 +25,6 @@ public class OrderItem {
     @ManyToOne
     private Order orderId;
 
+    public void setProduct(Product product) {
+    }
 }
