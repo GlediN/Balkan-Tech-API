@@ -77,6 +77,11 @@ public class OrderServiceImpl implements OrderService {
                     int orderQuantity = Integer.parseInt(itemWrite.getQuantity());
                     int productQuantity = Integer.parseInt(String.valueOf(product.getQuantity()));
 
+                    // Check if order quantity exceeds product quantity
+                    if (orderQuantity > productQuantity) {
+                        throw new IllegalArgumentException("Order quantity exceeds available product quantity");
+                    }//Nje control check per orderQuantity
+
                     // Update the product quantity
                     int remainingQuantity = productQuantity - orderQuantity;
                     product.setQuantity(Integer.valueOf(String.valueOf(remainingQuantity)));
@@ -87,6 +92,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
     }
+
     private Order createOrderFromDTO(OrderWrite orderWrite) {
         Order order = new Order();
 
