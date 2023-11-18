@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ public class UserService {
     private final CustomerUserDetailsService customerUsersDetailsService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private final BCryptPasswordEncoder bcryptPasswordEncoder;
+    private final PasswordEncoder bcryptPasswordEncoder;
 
     public ResponseEntity<String> signUp(SignUpRequest signUpRequest) {
         try {
@@ -91,7 +92,7 @@ public class UserService {
         user.setName(signUpRequest.getName());
         user.setSurname(signUpRequest.getSurname());
         user.setContactNumber(signUpRequest.getContactNumber());
-        user.setPassword(bcryptPasswordEncoder.encode(signUpRequest.getPassword()));
+        user.setPassword(signUpRequest.getPassword());
         user.setEmail(signUpRequest.getEmail());
         user.setAddress(signUpRequest.getAddress());
         user.setSubscription(signUpRequest.getSubscription());
