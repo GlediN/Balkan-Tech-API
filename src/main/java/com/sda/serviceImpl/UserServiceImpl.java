@@ -1,11 +1,12 @@
 package com.sda.serviceImpl;
 
-import com.sda.dao.UserDao;
+import com.sda.repositories.UserDao;
 import com.sda.entities.User;
 import com.sda.enums.Roles;
 import com.sda.jwt.CustomerUserDetailsService;
 import com.sda.jwt.JwtFilter;
 import com.sda.jwt.JwtUtil;
+import com.sda.repositories.UserDao;
 import com.sda.service.UserService;
 import com.sda.utils.HelpfulUtils;
 import lombok.Getter;

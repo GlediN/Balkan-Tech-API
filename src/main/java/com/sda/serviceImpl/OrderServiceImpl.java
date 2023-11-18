@@ -1,94 +1,113 @@
 package com.sda.serviceImpl;
 
-import com.sda.dao.OrderDao;
-import com.sda.dao.OrderItemsDAO;
-import com.sda.dao.ProductDao;
-import com.sda.dao.UserDao;
+import com.sda.repositories.*;
+import com.sda.dto.OrderItemWrite;
+import com.sda.dto.OrderWrite;
+import com.sda.entities.Order;
 import com.sda.entities.OrderItem;
-import com.sda.entities.Orders;
 import com.sda.entities.Product;
-import com.sda.entities.User;
 import com.sda.service.OrderService;
 import com.sda.utils.HelpfulUtils;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
-    final UserDao userDao;
-    final OrderDao orderDao;
-    final ProductDao productDao;
-    final OrderItemsDAO orderItemsDAO;
+
+    private final UserDao userDao;
+    private final OrderDao orderDao;
+    private final ProductDao productDao;
+    private final OrderItemsDAO orderItemsDAO;
 
     @Override
-    public ResponseEntity<String> getOrder(Map<String, String> requestMap) {
+    public ResponseEntity<String> getOrder(OrderWrite orderWrite) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<String> saveOrder(OrderWrite orderWrite) {
         try {
-            getOrdersFromMap(requestMap);
+            // Add your business logic here for saving the order
+            Order order = createOrderFromDTO(orderWrite);
+            orderDao.save(order);
+
+            if (orderWrite.getOrderItems() != null) {
+                for (OrderItemWrite itemWrite : orderWrite.getOrderItems()) {
+                    OrderItem orderItem = new OrderItem();
+
+                    // Fetch the product from the database using the productId
+                    Product product = productDao.findById((int) Long.parseLong(itemWrite.getProductId())).orElse(null);
+
+                    if (product != null) {
+                        orderItem.setProductId(product);
+                        orderItem.setOrderId(order);
+                        orderItem.setQuantity(itemWrite.getQuantity());
+                        // You may want to set the price based on the product or other business logic
+                        // orderItem.setPrice(itemWrite.getPrice());
+
+                        orderItemsDAO.save(orderItem);
+                    } else {
+                        return HelpfulUtils.getResponseEntity("Product ID not found", HttpStatus.BAD_REQUEST);
+                    }
+                }
+            }
+            updateProductQuantities(orderWrite);
+
+            return ResponseEntity.ok("Order saved successfully");
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        return null;
-    }
-
-    private Boolean validateOrder(Map<String, String> requestMap) {
-        if (requestMap.containsKey("name")
-                && requestMap.containsKey("surname") && requestMap.containsKey("contactNumber") && requestMap.containsKey("address") && requestMap.containsKey("country")) {
-            return true;
-        } else {
-            return false;
+            return ResponseEntity.status(500).body("Error saving order");
         }
     }
 
-    public ResponseEntity saveOrder(Map<String, String> requestMap){
-        try {
-            Orders savedOrder = orderDao.save(getOrdersFromMap(requestMap));
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrderId(savedOrder);
-            orderItem.setQuantity(null);
-            orderItemsDAO.save(orderItem);
+    private void updateProductQuantities(OrderWrite orderWrite) {
+        if (orderWrite.getOrderItems() != null) {
+            for (OrderItemWrite itemWrite : orderWrite.getOrderItems()) {
+                // Fetch the product from the database using the productId
+                Product product = productDao.findById((int) Long.parseLong(itemWrite.getProductId())).orElse(null);
 
-            return HelpfulUtils.getResponseEntity("Order Saved",HttpStatus.OK);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+                if (product != null) {
+                    // Parse the quantity from String to int
+                    int orderQuantity = Integer.parseInt(itemWrite.getQuantity());
+                    int productQuantity = Integer.parseInt(String.valueOf(product.getQuantity()));
 
-    private Product getProductFromMap(Map<String, String> requestMap) {
-        if (requestMap.containsKey("productId")) {
-            try {
-                int productId = Integer.parseInt(requestMap.get("productId"));
-                return productDao.findById(productId).orElse(null);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
+                    // Check if order quantity exceeds product quantity
+                    if (orderQuantity > productQuantity) {
+                        throw new IllegalArgumentException("Order quantity exceeds available product quantity");
+                    }//Nje control check per orderQuantity
+
+                    // Update the product quantity
+                    int remainingQuantity = productQuantity - orderQuantity;
+                    product.setQuantity(Integer.valueOf(String.valueOf(remainingQuantity)));
+
+                    // Save the updated product
+                    productDao.save(product);
+                }
             }
         }
-        return null;
-    }
-    private Orders getOrdersFromMap(Map<String, String> requestMap) {
-        Orders orders = new Orders();
-        OrderItem orderItem = new OrderItem();
-        Product product = new Product();
-        orders.setId(String.valueOf(UUID.randomUUID()));
-        orders.setName(requestMap.get("name"));
-        orders.setEmail(requestMap.get("surname"));
-        orders.setContactNumber(requestMap.get("contactNumber"));
-        orders.setAddress(requestMap.get("address"));
-        orders.setTotalPrice(Double.parseDouble(requestMap.get("totalPrice")));
-        orders.setOrderDate(LocalDateTime.now());
-        orders.setUser(userDao.findByEmailId(requestMap.get("email")));
-        return orders;
-
     }
 
+    private Order createOrderFromDTO(OrderWrite orderWrite) {
+        Order order = new Order();
 
+        OrderItemWrite orderItemWrite= new OrderItemWrite();
+        order.setId(String.valueOf(UUID.randomUUID()));
+        order.setName(orderWrite.getName());
+        order.setContactNumber(orderWrite.getContactNumber());
+        order.setAddress(orderWrite.getAddress());
+        order.setTotalPrice((orderWrite.getTotalPrice()));
+        order.setOrderDate(LocalDateTime.now());
+        order.setUser(userDao.findByEmailId(orderWrite.getEmail()));
+
+
+        return order;
+    }
+
+    // Other methods as needed
 }

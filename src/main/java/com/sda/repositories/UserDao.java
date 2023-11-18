@@ -1,4 +1,4 @@
-package com.sda.dao;
+package com.sda.repositories;
 
 import com.sda.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
