@@ -68,11 +68,20 @@ public class ProductService {
         Product product = new Product();
         if (isAdd) {
             product.setId(productDTO.getId());
+            Optional<Product> existingProduct = productDao.findById(productDTO.getId());
+            if (existingProduct.isPresent()) {
+                Product value = existingProduct.get();
+                product.setSoldQty(value.getSoldQty());
+            }
         }
-        if (!isAdd && productDTO.getQuantity() != null) {
-            product.setQuantity(productDTO.getQuantity());
+
+        if(!isAdd){
+            product.setSoldQty(0);
         }
+
+
         product.setCategory(category);
+        product.setQuantity(productDTO.getQuantity());
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
         product.setPrice(productDTO.getPrice());
@@ -100,7 +109,6 @@ public class ProductService {
                     Optional<Product> optional = productDao.findById(productDTO.getId());
                     if (optional.isPresent()) {
                         Product product = getProductFromDTO(productDTO, true);
-                        product.setQuantity(optional.get().getQuantity());
                         productDao.save(product);
                         return HelpfulUtils.getResponseEntity("Product updated successfully", HttpStatus.OK);
                     } else {

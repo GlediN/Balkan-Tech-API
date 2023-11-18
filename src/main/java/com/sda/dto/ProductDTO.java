@@ -13,6 +13,6 @@ public class ProductDTO {
     private Integer categoryId;
     private double price;
     private double discount;
-    private Integer soldQty;
+/*    private Integer soldQty;*/
     private String imageUrl;
 }
