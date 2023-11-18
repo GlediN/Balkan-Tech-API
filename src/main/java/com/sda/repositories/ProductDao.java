@@ -28,4 +28,9 @@ public interface ProductDao extends JpaRepository<Product, Integer> {
     boolean existsByName(String name);
     @Query("select count(c) > 0 from Category c where c.id = :categoryId")
     boolean existsCategoryById(@Param("categoryId") Integer categoryId);
+    @Query("select p from Product p where p.name like %:search% or p.category.name like %:search%")
+    List<Product> searchProductByNameOrCategory(@Param("search") String search);
+
+
+
 }

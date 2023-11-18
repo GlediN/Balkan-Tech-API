@@ -1,52 +1,48 @@
-package com.sda.restImpl;
+package com.sda.controllers;
 
-import com.sda.rest.UserRest;
-import com.sda.service.UserService;
+import com.sda.dto.LoginRequest;
+import com.sda.dto.SignUpRequest;
+import com.sda.services.EmailService;
+import com.sda.services.UserService;
 import com.sda.utils.HelpfulUtils;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Getter
-@Setter
 @RequiredArgsConstructor
-public class UserRestImpl implements UserRest {
+@CrossOrigin
+public class UserController {
 
-final UserService userService;
-    @Override
-    public ResponseEntity<String> signUp(Map<String, String> requestMap) {
+    private final UserService userService;
+    private final EmailService emailService;
+
+    @PostMapping(path = "/signup")
+    public ResponseEntity<String> signUp(@RequestBody SignUpRequest signUpRequest) {
         try {
-            return userService.signUp(requestMap);
+           return userService.signUp(signUpRequest);
         } catch (Exception e) {
             e.printStackTrace();
-
         }
         return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-
-    @Override
-    public ResponseEntity<String> login(Map<String, String> requestMap) {
-        try{
-            return userService.login(requestMap);
-        }catch (Exception e){
+    @PostMapping(path = "/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            return userService.login(loginRequest);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-
     }
 
-    @Override
+    @GetMapping(path = "/checkToken")
     public ResponseEntity<String> checkToken() {
         try {
             return userService.checkToken();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
