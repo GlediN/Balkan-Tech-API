@@ -21,7 +21,10 @@ public class UserController {
     @PostMapping(path = "/signup")
     public ResponseEntity<String> signUp(@RequestBody SignUpRequest signUpRequest) {
         try {
-           return userService.signUp(signUpRequest);
+
+            userService.signUp(signUpRequest);
+            emailService.sendEmail(signUpRequest.getEmail(),"BalkanTech - Account Created Successfully","Dear " +signUpRequest.getName()+",\n\nThe account created successfully for BalkanTech. You may login using your email and password \n\nThank You,\nBalkanTech Team",null );
+       return HelpfulUtils.getResponseEntity("Account created successfully", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
         }
