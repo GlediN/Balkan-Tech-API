@@ -1,4 +1,4 @@
-package com.sda.serviceImpl;
+package com.sda.services;
 
 import com.sda.repositories.*;
 import com.sda.dto.OrderItemWrite;
@@ -6,7 +6,6 @@ import com.sda.dto.OrderWrite;
 import com.sda.entities.Order;
 import com.sda.entities.OrderItem;
 import com.sda.entities.Product;
-import com.sda.service.OrderService;
 import com.sda.utils.HelpfulUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,19 +17,19 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class OrderServiceImpl implements OrderService {
+public class OrderService {
 
     private final UserDao userDao;
     private final OrderDao orderDao;
     private final ProductDao productDao;
     private final OrderItemsDAO orderItemsDAO;
 
-    @Override
+
     public ResponseEntity<String> getOrder(OrderWrite orderWrite) {
         return null;
     }
 
-    @Override
+
     public ResponseEntity<String> saveOrder(OrderWrite orderWrite) {
         try {
             Order order = createOrderFromDTO(orderWrite);
@@ -72,6 +71,7 @@ public class OrderServiceImpl implements OrderService {
 
                     int remainingQuantity = productQuantity - orderQuantity;
                     product.setQuantity(Integer.valueOf(String.valueOf(remainingQuantity)));
+                    product.setSoldQty(product.getSoldQty()+orderQuantity);//shtova edhe sasine e shitur te produktit
                     productDao.save(product);
                 }
             }

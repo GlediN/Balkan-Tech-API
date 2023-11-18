@@ -1,7 +1,7 @@
 package com.sda.controllers;
 
 import com.sda.dto.OrderWrite;
-import com.sda.service.OrderService;
+import com.sda.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @CrossOrigin
 public class OrderController {
-    protected final OrderService orderService;
+    private final OrderService orderService;
 
     @PostMapping("save")
     public ResponseEntity<String> save(@RequestBody OrderWrite dto) {
