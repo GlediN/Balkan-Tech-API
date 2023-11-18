@@ -13,6 +13,5 @@ public class OrderWrite {
     private String address;
     private Double totalPrice;
     private String email;
-    private String quantity; // This seems to be redundant and can be removed
     private List<OrderItemWrite> orderItems;
 }
