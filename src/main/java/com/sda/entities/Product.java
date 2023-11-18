@@ -28,7 +28,9 @@ public class Product {
     private double price;
     private double discount;
     private Integer soldQty;
-    @OneToMany(mappedBy = "productId")
-    private List<ProductPhoto> productPhotos;
+    private String imageUrl;
+
+   /* @OneToMany(mappedBy = "productId")
+    private List<ProductPhoto> productPhotos;*/
 
 }

@@ -19,7 +19,7 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String quantity;
-    private String price;
+    private double price;
     @ManyToOne
     private Product productId;
     @ManyToOne

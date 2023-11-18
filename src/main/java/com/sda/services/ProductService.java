@@ -1,11 +1,11 @@
-package com.sda.serviceImpl;
+package com.sda.services;
 
-import com.sda.repositories.*;
+import com.sda.dto.ProductDTO;
 import com.sda.entities.Category;
 import com.sda.entities.Product;
-import com.sda.entities.ProductPhoto;
 import com.sda.jwt.JwtFilter;
-import com.sda.service.ProductService;
+import com.sda.repositories.CategoryDao;
+import com.sda.repositories.ProductDao;
 import com.sda.utils.HelpfulUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,33 +14,30 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ProductServiceImpl implements ProductService {
+public class ProductService {
+
     final ProductDao productDao;
-
     final CategoryDao categoryDao;
-
     final JwtFilter jwtFilter;
 
 
-    @Override
-    public ResponseEntity<String> addNewProduct(Map<String, String> requestMap) {
+    public ResponseEntity<String> addNewProduct(ProductDTO productDTO) {
         try {
             if (jwtFilter.isAdmin()) {
-                if (validateProductMap(requestMap, false)) {
-                    String productName = requestMap.get("name");
+                if (validateProductDTO(productDTO, false)) {
+                    String productName = productDTO.getName();
                     if (productDao.existsByName(productName)) {
                         return HelpfulUtils.getResponseEntity("Product already exists", HttpStatus.OK);
                     }
-                    Integer categoryId = Integer.parseInt(requestMap.get("categoryId"));
+                    Integer categoryId = productDTO.getCategoryId();
                     if (!productDao.existsCategoryById(categoryId)) {
                         return HelpfulUtils.getResponseEntity("Category does not exist. Create the category first.", HttpStatus.BAD_REQUEST);
                     }
-                    productDao.save(getProductFromMap(requestMap, false));
+                    productDao.save(getProductFromDTO(productDTO, false));
                     return HelpfulUtils.getResponseEntity("Product added successfully", HttpStatus.OK);
                 }
                 return HelpfulUtils.getResponseEntity(HelpfulUtils.INVALID_DATA, HttpStatus.BAD_REQUEST);
@@ -53,69 +50,65 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-
-    private boolean validateProductMap(Map<String, String> requestMap, boolean validateId) {
-        if (requestMap.containsKey("name")) {
-            if (requestMap.containsKey("id") && validateId) {
+    private boolean validateProductDTO(ProductDTO productDTO, boolean validateId) {
+        if (productDTO.getName() != null) {
+            if (productDTO.getId() != null && validateId) {
                 return true;
             } else if (!validateId) {
                 return true;
             }
         }
-
         return false;
     }
 
-    private Product getProductFromMap(Map<String, String> requestMap, boolean isAdd) {
+    private Product getProductFromDTO(ProductDTO productDTO, boolean isAdd) {
         Category category = new Category();
-        category.setId(Integer.parseInt(requestMap.get("categoryId")));
+        category.setId(productDTO.getCategoryId());
 
         Product product = new Product();
         if (isAdd) {
-            product.setId(Integer.parseInt(requestMap.get("id")));
-        }
-        product.setQuantity(Integer.parseInt(requestMap.get("quantity")));
-        product.setCategory(category);
-        product.setName(requestMap.get("name"));
-        product.setDescription(requestMap.get("description"));
-        product.setPrice(Double.parseDouble(requestMap.get("price")));
-        product.setDiscount(Double.parseDouble(requestMap.get("discount")));
-        List<ProductPhoto> productPhotos = new ArrayList<>();
-        if (requestMap.containsKey("productPhotos")) {
-            String[] photoNames = requestMap.get("productPhotos").split(",");
-            for (String photoName : photoNames) {
-                ProductPhoto productPhoto = new ProductPhoto();
-                productPhoto.setProductId(product);
-                productPhoto.setProductPhoto(photoName);
-                productPhotos.add(productPhoto);
+            product.setId(productDTO.getId());
+            Optional<Product> existingProduct = productDao.findById(productDTO.getId());
+            if (existingProduct.isPresent()) {
+                Product value = existingProduct.get();
+                product.setSoldQty(value.getSoldQty());
             }
         }
 
-        product.setProductPhotos(productPhotos);
+        if(!isAdd){
+            product.setSoldQty(0);
+        }
 
+
+        product.setCategory(category);
+        product.setQuantity(productDTO.getQuantity());
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        product.setDiscount(productDTO.getDiscount());
+        product.setImageUrl(productDTO.getImageUrl());
         return product;
     }
 
 
-    @Override
     public ResponseEntity<List<Product>> getAllProduct() {
         try {
-            return new ResponseEntity<>(productDao.getAllProduct(), HttpStatus.OK);
-
+            List<Product> products = productDao.findAll();
+            return new ResponseEntity<>(products, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @Override
-    public ResponseEntity<String> updateProduct(Map<String, String> requestMap) {
+
+    public ResponseEntity<String> updateProduct(ProductDTO productDTO) {
         try {
             if (jwtFilter.isAdmin()) {
-                if (validateProductMap(requestMap, true)) {
-                    Optional<Product> optional = productDao.findById(Integer.parseInt(requestMap.get("id")));
-                    if (!optional.isEmpty()) {
-                        Product product = getProductFromMap(requestMap, true);
+                if (validateProductDTO(productDTO, true)) {
+                    Optional<Product> optional = productDao.findById(productDTO.getId());
+                    if (optional.isPresent()) {
+                        Product product = getProductFromDTO(productDTO, true);
                         productDao.save(product);
                         return HelpfulUtils.getResponseEntity("Product updated successfully", HttpStatus.OK);
                     } else {
@@ -129,42 +122,39 @@ public class ProductServiceImpl implements ProductService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @Override
+
     public ResponseEntity<String> deleteProduct(Integer id) {
         try {
             if (jwtFilter.isAdmin()) {
-                Optional optional = productDao.findById(id);
-                if (!optional.isEmpty()) {
+                Optional<Product> optional = productDao.findById(id);
+                if (optional.isPresent()) {
                     productDao.deleteById(id);
                     return HelpfulUtils.getResponseEntity("Product Deleted Successfully", HttpStatus.OK);
                 } else {
                     return HelpfulUtils.getResponseEntity("Product ID does not exist", HttpStatus.OK);
                 }
-
             } else {
                 return HelpfulUtils.getResponseEntity(HelpfulUtils.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
+            return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @Override
-    public ResponseEntity<String> updateQuantity(Map<String, String> requestMap) {
+    public ResponseEntity<String> updateQuantity(ProductDTO productDTO) {
         try {
             if (jwtFilter.isAdmin()) {
-                Optional<Product> optional = productDao.findById(Integer.parseInt(requestMap.get("id")));
-                if (!optional.isEmpty()) {
+                Optional<Product> optional = productDao.findById(productDTO.getId());
+                if (optional.isPresent()) {
                     Integer currentQuantity = optional.get().getQuantity();
-                    Integer updateQuantity = Integer.parseInt(requestMap.get("quantity"));
+                    Integer updateQuantity = productDTO.getQuantity();
                     if (currentQuantity + updateQuantity >= 0) {
-                        productDao.updateProductQuantity(updateQuantity, Integer.parseInt(requestMap.get("id")));
+                        productDao.updateProductQuantity(updateQuantity, productDTO.getId());
                         return HelpfulUtils.getResponseEntity("Product Quantity Updated Successfully", HttpStatus.OK);
                     } else {
                         return HelpfulUtils.getResponseEntity("Invalid quantity. Resulting quantity cannot be negative.", HttpStatus.BAD_REQUEST);
@@ -176,12 +166,10 @@ public class ProductServiceImpl implements ProductService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-
-    @Override
     public ResponseEntity<List<Product>> getByCategory(Integer id) {
         try {
             if (categoryDao.existsById(id)) {
@@ -192,44 +180,41 @@ public class ProductServiceImpl implements ProductService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
-    @Override
     public ResponseEntity<Product> getProductById(Integer id) {
         try {
             return new ResponseEntity<>(productDao.getProductById(id), HttpStatus.OK);
 
         } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseEntity<>(new Product(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
-        return new ResponseEntity<>(new Product(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @Override
+
     public ResponseEntity<List<Product>> getMostSoldProducts() {
         try {
             return new ResponseEntity<>(productDao.getMostSoldProducts(), HttpStatus.OK);
 
         } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @Override
+
     public ResponseEntity<List<Product>> searchByProductNameAndCategory(String search) {
-        try{
-            return new ResponseEntity<>(productDao.searchProductByNameOrCategory(search),HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(productDao.searchProductByNameOrCategory(search), HttpStatus.OK);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
+
 }
