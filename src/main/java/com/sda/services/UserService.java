@@ -1,57 +1,49 @@
-package com.sda.serviceImpl;
+package com.sda.services;
 
-import com.sda.repositories.UserDao;
+import com.sda.dto.LoginRequest;
+import com.sda.dto.SignUpRequest;
 import com.sda.entities.User;
 import com.sda.enums.Roles;
 import com.sda.jwt.CustomerUserDetailsService;
 import com.sda.jwt.JwtFilter;
 import com.sda.jwt.JwtUtil;
+import com.sda.jwt.SecurityConfig;
 import com.sda.repositories.UserDao;
-import com.sda.service.UserService;
 import com.sda.utils.HelpfulUtils;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
-@Getter
-@Setter
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
-    final UserDao userDao;
+public class UserService {
 
-    final CustomerUserDetailsService customerUsersDetailsService;
+    private final UserDao userDao;
+    private final CustomerUserDetailsService customerUsersDetailsService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder bcryptPasswordEncoder;
 
-    final AuthenticationManager authenticationManager;
-
-    final JwtUtil jwtUtil;
-
-    final JwtFilter jwtFilter;
-
-
-    @Override
-    public ResponseEntity<String> signUp(Map<String, String> requestMap) {
+    public ResponseEntity<String> signUp(SignUpRequest signUpRequest) {
         try {
-            if (validateSignUpMap(requestMap)) {
-                User user = userDao.findByEmailId(requestMap.get("email"));
+            if (validateSignUpRequest(signUpRequest)) {
+                User user = userDao.findByEmailId(signUpRequest.getEmail());
                 if (Objects.isNull(user)) {
-                    userDao.save(getUserFromMap(requestMap));
+                    userDao.save(getUserFromSignUpRequest(signUpRequest));
                     return HelpfulUtils.getResponseEntity("Successfully Registered", HttpStatus.OK);
                 } else {
                     return HelpfulUtils.getResponseEntity("Email already exists", HttpStatus.BAD_REQUEST);
                 }
-
             } else {
                 return HelpfulUtils.getResponseEntity(HelpfulUtils.INVALID_DATA, HttpStatus.BAD_REQUEST);
             }
@@ -61,11 +53,10 @@ public class UserServiceImpl implements UserService {
         return HelpfulUtils.getResponseEntity(HelpfulUtils.INVALID_DATA, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @Override
-    public ResponseEntity<String> login(Map<String, String> requestMap) {
+    public ResponseEntity<String> login(LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password"))
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
             if (authentication.isAuthenticated()) {
                 return new ResponseEntity<>("{\"token\":\"" +
@@ -79,43 +70,35 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>("{\"message\":\"Bad Credentials.\"}", HttpStatus.BAD_REQUEST);
     }
 
-
-    private boolean validateSignUpMap(Map<String, String> requestMap) {
-        if (requestMap.containsKey("contactNumber")
-                && requestMap.containsKey("email") && requestMap.containsKey("password")) {
-            return true;
-        } else {
-            return false;
+    public ResponseEntity<String> checkToken() {
+        try {
+            return HelpfulUtils.getResponseEntity("true", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
+        return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private User getUserFromMap(Map<String, String> requestMap) {
+    private boolean validateSignUpRequest(SignUpRequest signUpRequest) {
+        return signUpRequest.getEmail() != null && signUpRequest.getPassword() != null;
+    }
+
+    private User getUserFromSignUpRequest(SignUpRequest signUpRequest) {
         User user = new User();
         user.setId(String.valueOf(UUID.randomUUID()));
         user.setRegisterDate(LocalDateTime.now());
-        user.setCity(requestMap.get("city"));
-        user.setCountry(requestMap.get("country"));
-        user.setName(requestMap.get("name"));
-        user.setSurname(requestMap.get("surname"));
-        user.setContactNumber(requestMap.get("contactNumber"));
-        user.setPassword(requestMap.get("password"));
-        user.setEmail(requestMap.get("email"));
-        user.setAddress(requestMap.get("address"));
-        user.setSubscription(requestMap.get("subscription"));
+        user.setCity(signUpRequest.getCity());
+        user.setCountry(signUpRequest.getCountry());
+        user.setName(signUpRequest.getName());
+        user.setSurname(signUpRequest.getSurname());
+        user.setContactNumber(signUpRequest.getContactNumber());
+        user.setPassword(signUpRequest.getPassword());
+        user.setEmail(signUpRequest.getEmail());
+        user.setAddress(signUpRequest.getAddress());
+        user.setSubscription(signUpRequest.getSubscription());
         user.setRole(Roles.USER);
         return user;
     }
-
-
-
-
-    @Override
-    public ResponseEntity<String> checkToken() {
-        return HelpfulUtils.getResponseEntity("true", HttpStatus.OK);
-    }
-
-
 
 
 }

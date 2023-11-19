@@ -1,22 +1,17 @@
-package com.sda.serviceImpl;
+package com.sda.services;
 
-
-import com.sda.service.EmailService;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-
 @Service
-public class EmailserviceImpl implements EmailService {
-    JavaMailSender javaMailSender;
+@RequiredArgsConstructor
+public class EmailService {
 
-    public void EmailServiceImpl(JavaMailSender javaMailSender) {
-        this.javaMailSender = javaMailSender;
-    }
+    private final JavaMailSender javaMailSender;
 
     public void sendEmail(String to, String subject, String text, String attachmentPath) throws EmailException {
         try {
@@ -40,5 +35,4 @@ public class EmailserviceImpl implements EmailService {
             throw new EmailException("Fail to send email", e);
         }
     }
-
 }

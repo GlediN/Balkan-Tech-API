@@ -1,4 +1,4 @@
-package com.sda.serviceImpl;
+package com.sda.services;
 
 import com.sda.repositories.*;
 import com.sda.dto.OrderItemWrite;
@@ -6,7 +6,6 @@ import com.sda.dto.OrderWrite;
 import com.sda.entities.Order;
 import com.sda.entities.OrderItem;
 import com.sda.entities.Product;
-import com.sda.service.OrderService;
 import com.sda.utils.HelpfulUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,39 +17,33 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class OrderServiceImpl implements OrderService {
+public class OrderService {
 
     private final UserDao userDao;
     private final OrderDao orderDao;
     private final ProductDao productDao;
     private final OrderItemsDAO orderItemsDAO;
 
-    @Override
+
     public ResponseEntity<String> getOrder(OrderWrite orderWrite) {
         return null;
     }
 
-    @Override
+
     public ResponseEntity<String> saveOrder(OrderWrite orderWrite) {
         try {
-            // Add your business logic here for saving the order
             Order order = createOrderFromDTO(orderWrite);
             orderDao.save(order);
 
             if (orderWrite.getOrderItems() != null) {
                 for (OrderItemWrite itemWrite : orderWrite.getOrderItems()) {
                     OrderItem orderItem = new OrderItem();
-
-                    // Fetch the product from the database using the productId
                     Product product = productDao.findById((int) Long.parseLong(itemWrite.getProductId())).orElse(null);
-
                     if (product != null) {
                         orderItem.setProductId(product);
                         orderItem.setOrderId(order);
                         orderItem.setQuantity(itemWrite.getQuantity());
-                        // You may want to set the price based on the product or other business logic
-                        // orderItem.setPrice(itemWrite.getPrice());
-
+                       orderItem.setPrice(product.getPrice());
                         orderItemsDAO.save(orderItem);
                     } else {
                         return HelpfulUtils.getResponseEntity("Product ID not found", HttpStatus.BAD_REQUEST);
@@ -58,35 +51,27 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             updateProductQuantities(orderWrite);
-
             return ResponseEntity.ok("Order saved successfully");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error saving order");
         }
     }
-
     private void updateProductQuantities(OrderWrite orderWrite) {
         if (orderWrite.getOrderItems() != null) {
             for (OrderItemWrite itemWrite : orderWrite.getOrderItems()) {
-                // Fetch the product from the database using the productId
                 Product product = productDao.findById((int) Long.parseLong(itemWrite.getProductId())).orElse(null);
 
                 if (product != null) {
-                    // Parse the quantity from String to int
                     int orderQuantity = Integer.parseInt(itemWrite.getQuantity());
                     int productQuantity = Integer.parseInt(String.valueOf(product.getQuantity()));
-
-                    // Check if order quantity exceeds product quantity
                     if (orderQuantity > productQuantity) {
                         throw new IllegalArgumentException("Order quantity exceeds available product quantity");
                     }//Nje control check per orderQuantity
 
-                    // Update the product quantity
                     int remainingQuantity = productQuantity - orderQuantity;
                     product.setQuantity(Integer.valueOf(String.valueOf(remainingQuantity)));
-
-                    // Save the updated product
+                    product.setSoldQty(product.getSoldQty()+orderQuantity);//shtova edhe sasine e shitur te produktit
                     productDao.save(product);
                 }
             }
@@ -108,6 +93,4 @@ public class OrderServiceImpl implements OrderService {
 
         return order;
     }
-
-    // Other methods as needed
 }

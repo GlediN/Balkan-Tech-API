@@ -20,8 +20,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-final CustomerUserDetailsService customerUserDetailsService;
-final JwtFilter jwtFilter;
+    final CustomerUserDetailsService customerUserDetailsService;
+    final JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
