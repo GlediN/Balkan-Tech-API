@@ -23,6 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
     Claims claims = null;
     private String userName = null;
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         if (httpServletRequest.getServletPath().matches("/login|/signup|/category/get|/product/get|/product/most-sold-products|/checkout|/orders/save")) {
@@ -57,6 +58,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
     public boolean isUser() {
         return "user".equalsIgnoreCase((String) claims.get("role"));
+    }
+
+    public void  getUser(){
+        getCurrentUser();
     }
 
     public String getCurrentUser() {

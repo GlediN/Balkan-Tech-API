@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -53,20 +54,32 @@ public class UserService {
         return HelpfulUtils.getResponseEntity(HelpfulUtils.INVALID_DATA, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public ResponseEntity<String> login(LoginRequest loginRequest) {
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
         try {
+            // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
+
+            // If authentication is successful
             if (authentication.isAuthenticated()) {
-                return new ResponseEntity<>("{\"token\":\"" +
-                        jwtUtil.generateToken(customerUsersDetailsService
-                                .getUserDetail()
-                                .getEmail(), customerUsersDetailsService.getUserDetail().getRole()) + "\"}", HttpStatus.OK);
+                // Extract email
+                String email = loginRequest.getEmail();
+
+                // Generate token
+                String token = jwtUtil.generateToken(email, customerUsersDetailsService.getUserDetail().getRole());
+
+                // Construct JSON response with both email and token
+                String jsonResponse = String.format("{\"email\":\"%s\",\"token\":\"%s\"}", email, token);
+
+                // Return JSON response with OK status
+                return ResponseEntity.ok(jsonResponse);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // Return JSON response with Bad Request status
         return new ResponseEntity<>("{\"message\":\"Bad Credentials.\"}", HttpStatus.BAD_REQUEST);
     }
 
