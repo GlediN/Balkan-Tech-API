@@ -78,4 +78,15 @@ public class CategoryController {
             return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/get/{categoryId}")
+    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Integer categoryId) {
+        try {
+            return categoryService.getCategoryById(categoryId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

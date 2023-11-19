@@ -25,21 +25,4 @@ public class HelpfulUtils {
         return new ResponseEntity<String>("{\"message\":\""+responseMessage+"\"}", httpStatus);
     }
 
-    public static JsonNode getJsonNodeFromString(String data) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readTree(data);
-    }
-
-    public static Map<String, Object> setMapFromJson(String data) {
-        if (data != null && !data.isEmpty()) {
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.readValue(data, new TypeReference<Map<String, Object>>() {});
-            } catch (IOException e) {
-            }
-        }
-        return new HashMap<>();
-    }
-
-
 }

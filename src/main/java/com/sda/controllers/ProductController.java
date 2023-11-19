@@ -77,7 +77,7 @@ public class ProductController {
         return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @GetMapping(path = "/getByCategory/{id}")
+    @GetMapping(path = "/category/{id}")
     public ResponseEntity<List<Product>> getByCategory(@PathVariable Integer id) {
         try {
             return productService.getByCategory(id);

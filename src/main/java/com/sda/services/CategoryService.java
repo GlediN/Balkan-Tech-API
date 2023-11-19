@@ -119,7 +119,6 @@ public class CategoryService {
     }
 
     private boolean validateCategoryDto(CategoryDto categoryDto, boolean validateId) {
-        // Validation logic
         if (validateId && categoryDto.getId() == null) {
             return false;
         }
@@ -127,7 +126,6 @@ public class CategoryService {
     }
 
     private Category getCategoryFromDto(CategoryDto categoryDto, boolean isAdd) {
-        // Mapping logic from DTO to Entity
         Category category = new Category();
         if (isAdd) {
             category.setId(categoryDto.getId());
@@ -139,7 +137,6 @@ public class CategoryService {
     }
 
     private List<CategoryDto> mapCategoriesToDtos(List<Category> categories) {
-        // Mapping logic from Entity to DTO
         List<CategoryDto> categoryDtos = new ArrayList<>();
         for (Category category : categories) {
             CategoryDto categoryDto = new CategoryDto();
@@ -151,5 +148,31 @@ public class CategoryService {
         }
         return categoryDtos;
     }
+
+    public ResponseEntity<CategoryDto> getCategoryById(Integer categoryId) {
+        try {
+            Optional<Category> optionalCategory = categoryDAO.findById(categoryId);
+            if (optionalCategory.isPresent()) {
+                Category category = optionalCategory.get();
+                CategoryDto categoryDto = mapCategoryToDto(category);
+                return new ResponseEntity<>(categoryDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private CategoryDto mapCategoryToDto(Category category) {
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setId(category.getId());
+        categoryDto.setName(category.getName());
+        categoryDto.setPhoto(category.getPhoto());
+        categoryDto.setParentId(category.getParentId());
+        return categoryDto;
+    }
+
 
 }
