@@ -28,7 +28,7 @@ public class SecurityConfig {
 
         http.cors(withDefaults()).csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authz) ->
-                        authz.requestMatchers("/login", "/signup","/category/get","/product/get", "/product/most-sold-products","/checkout")
+                        authz.requestMatchers("/login", "/signup","/category/get","/product/get", "/product/most-sold-products","/checkout","/orders/save")
                                 .permitAll().anyRequest().authenticated())
                 .exceptionHandling((ex) -> ex.accessDeniedHandler(null))
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
