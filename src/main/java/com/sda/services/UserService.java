@@ -59,10 +59,14 @@ public class UserService {
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
             if (authentication.isAuthenticated()) {
-                return new ResponseEntity<>("{\"token\":\"" +
-                        jwtUtil.generateToken(customerUsersDetailsService
-                                .getUserDetail()
-                                .getEmail(), customerUsersDetailsService.getUserDetail().getRole()) + "\"}", HttpStatus.OK);
+                String jsonToken = "{\"token\":\"";
+                String jsonEmail = ",\"email\":\"";
+                String token = jwtUtil.generateToken(customerUsersDetailsService
+                        .getUserDetail()
+                        .getEmail(), customerUsersDetailsService.getUserDetail().getRole());
+                String email = customerUsersDetailsService.getUserDetail().getEmail();
+
+                return new ResponseEntity<>(jsonToken +token +jsonEmail + email+"\"}", HttpStatus.OK);
             }
         } catch (Exception e) {
             e.printStackTrace();
