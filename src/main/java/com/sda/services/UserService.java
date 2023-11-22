@@ -2,6 +2,7 @@ package com.sda.services;
 
 import com.sda.dto.LoginRequest;
 import com.sda.dto.SignUpRequest;
+import com.sda.dto.UserDataDTO;
 import com.sda.entities.User;
 import com.sda.enums.Roles;
 import com.sda.jwt.CustomerUserDetailsService;
@@ -33,7 +34,6 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder bcryptPasswordEncoder;
-
     public ResponseEntity<String> signUp(SignUpRequest signUpRequest) {
         try {
             if (validateSignUpRequest(signUpRequest)) {
@@ -72,6 +72,24 @@ public class UserService {
             e.printStackTrace();
         }
         return new ResponseEntity<>("{\"message\":\"Bad Credentials.\"}", HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<UserDataDTO> getUserFromEmail(String email){
+        try{
+            User user = (userDao.findByEmailId(email));
+            UserDataDTO userDataDTO = new UserDataDTO();
+            userDataDTO.setEmail(user.getEmail());
+            userDataDTO.setCity(user.getCity());
+            userDataDTO.setAddress(user.getAddress());
+            userDataDTO.setCountry(user.getCountry());
+            userDataDTO.setName(user.getName());
+            userDataDTO.setSurname(user.getSurname());
+            userDataDTO.setContactNumber(user.getContactNumber());
+                return new ResponseEntity<>(userDataDTO,HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     public ResponseEntity<String> checkToken() {

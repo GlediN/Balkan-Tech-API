@@ -2,6 +2,8 @@ package com.sda.controllers;
 
 import com.sda.dto.LoginRequest;
 import com.sda.dto.SignUpRequest;
+import com.sda.dto.UserDataDTO;
+import com.sda.entities.User;
 import com.sda.services.EmailService;
 import com.sda.services.UserService;
 import com.sda.utils.HelpfulUtils;
@@ -49,6 +51,17 @@ public class UserController {
             e.printStackTrace();
         }
         return HelpfulUtils.getResponseEntity(HelpfulUtils.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping(path = "/get-user-by-email/{email}")
+    public ResponseEntity<UserDataDTO> getUserFromEmail(@PathVariable String email){
+        try {
+            return userService.getUserFromEmail(email);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 
 }
