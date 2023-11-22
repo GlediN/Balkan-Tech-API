@@ -60,7 +60,7 @@ public class UserService {
             );
             if (authentication.isAuthenticated()) {
                 String jsonToken = "{\"token\":\"";
-                String jsonEmail = ",\"email\":\"";
+                String jsonEmail = "\",\"email\":\"";
                 String token = jwtUtil.generateToken(customerUsersDetailsService
                         .getUserDetail()
                         .getEmail(), customerUsersDetailsService.getUserDetail().getRole());
