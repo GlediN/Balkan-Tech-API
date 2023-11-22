@@ -2,6 +2,7 @@ package com.sda.services;
 
 import com.sda.dto.LoginRequest;
 import com.sda.dto.SignUpRequest;
+import com.sda.dto.UserDataDTO;
 import com.sda.entities.User;
 import com.sda.enums.Roles;
 import com.sda.jwt.CustomerUserDetailsService;
@@ -19,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -34,7 +34,6 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder bcryptPasswordEncoder;
-
     public ResponseEntity<String> signUp(SignUpRequest signUpRequest) {
         try {
             if (validateSignUpRequest(signUpRequest)) {
@@ -54,33 +53,43 @@ public class UserService {
         return HelpfulUtils.getResponseEntity(HelpfulUtils.INVALID_DATA, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<String> login(LoginRequest loginRequest) {
         try {
-            // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
-
-            // If authentication is successful
             if (authentication.isAuthenticated()) {
-                // Extract email
-                String email = loginRequest.getEmail();
+                String jsonToken = "{\"token\":\"";
+                String jsonEmail = "\",\"email\":\"";
+                String token = jwtUtil.generateToken(customerUsersDetailsService
+                        .getUserDetail()
+                        .getEmail(), customerUsersDetailsService.getUserDetail().getRole());
+                String email = customerUsersDetailsService.getUserDetail().getEmail();
 
-                // Generate token
-                String token = jwtUtil.generateToken(email, customerUsersDetailsService.getUserDetail().getRole());
-
-                // Construct JSON response with both email and token
-                String jsonResponse = String.format("{\"email\":\"%s\",\"token\":\"%s\"}", email, token);
-
-                // Return JSON response with OK status
-                return ResponseEntity.ok(jsonResponse);
+                return new ResponseEntity<>(jsonToken +token +jsonEmail + email+"\"}", HttpStatus.OK);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // Return JSON response with Bad Request status
         return new ResponseEntity<>("{\"message\":\"Bad Credentials.\"}", HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<UserDataDTO> getUserFromEmail(String email){
+        try{
+            User user = (userDao.findByEmailId(email));
+            UserDataDTO userDataDTO = new UserDataDTO();
+            userDataDTO.setEmail(user.getEmail());
+            userDataDTO.setCity(user.getCity());
+            userDataDTO.setAddress(user.getAddress());
+            userDataDTO.setCountry(user.getCountry());
+            userDataDTO.setName(user.getName());
+            userDataDTO.setSurname(user.getSurname());
+            userDataDTO.setContactNumber(user.getContactNumber());
+                return new ResponseEntity<>(userDataDTO,HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     public ResponseEntity<String> checkToken() {
