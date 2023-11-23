@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
     private final OrderService orderService;
 
-    @PostMapping("save")
+    @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody OrderWrite dto) {
         return orderService.saveOrder(dto);
     }

@@ -33,6 +33,13 @@ public class User {
     private LocalDateTime registerDate;
     private String subscription;
 
+    public User(String email, String name, String surname) {
+    }
+
+    public User() {
+
+    }
+
     public void setPassword(String password) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(password);
